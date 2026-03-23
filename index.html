@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>chesslittle</title>
+  <title>Little Chess</title>
   <style>
     :root{
-      --bg:#07111f;
-      --panel:#0f172a;
-      --panel2:#152238;
+      --bg1:#07111f;
+      --bg2:#0d1728;
+      --panel:rgba(15,23,42,.88);
       --text:#eef4ff;
-      --muted:#94a3b8;
+      --muted:#9aa8bf;
       --light:#eeeed2;
       --dark:#769656;
       --accent:#38bdf8;
       --accent2:#22c55e;
-      --danger:#ff6b6b;
+      --danger:#ef4444;
       --gold:#ffd166;
       --shadow:0 18px 60px rgba(0,0,0,.35);
       --radius:24px;
@@ -27,12 +27,12 @@
       background:
         radial-gradient(circle at top left, rgba(56,189,248,.16), transparent 30%),
         radial-gradient(circle at top right, rgba(34,197,94,.10), transparent 25%),
-        linear-gradient(180deg, #0b1220 0%, #07111f 100%);
+        linear-gradient(180deg, var(--bg2), var(--bg1));
       color:var(--text);
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       overflow:hidden;
     }
-    button, input{font:inherit}
+    button{font:inherit}
     .app{
       min-height:100vh;
       display:grid;
@@ -43,39 +43,39 @@
       margin:0 auto;
     }
     .topbar{
-      background:rgba(15,23,42,.88);
+      background:var(--panel);
       backdrop-filter:blur(12px);
       border:1px solid rgba(255,255,255,.08);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
-      padding:12px;
-      display:grid;
-      grid-template-columns:1fr auto;
-      gap:12px;
+      padding:12px 14px;
+      display:flex;
       align-items:center;
+      justify-content:space-between;
+      gap:12px;
     }
-    .title{
+    .brand{
       display:flex;
       flex-direction:column;
       gap:3px;
     }
-    .title h1{
-      margin:0;
-      font-size:clamp(20px,3.4vw,34px);
-      line-height:1;
+    .brand .small{
+      font-size:12px;
+      color:var(--muted);
       letter-spacing:.2px;
     }
-    .title .sub{
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.4;
+    .brand h1{
+      margin:0;
+      font-size:clamp(20px,3.8vw,34px);
+      line-height:1;
+      letter-spacing:.5px;
     }
     .actions{
       display:flex;
       gap:10px;
-      align-items:center;
       flex-wrap:wrap;
       justify-content:flex-end;
+      align-items:center;
     }
     .btn{
       border:0;
@@ -96,26 +96,22 @@
       color:#04121b;
       font-weight:800;
     }
-    .btn.danger{
-      background:linear-gradient(180deg,#ef4444,#dc2626);
-      color:white;
-      font-weight:700;
-    }
-    .btn.ghost{
-      background:rgba(255,255,255,.07);
-    }
+    .btn.ghost{background:rgba(255,255,255,.07)}
+    .btn.danger{background:linear-gradient(180deg,#ef4444,#dc2626);color:#fff;font-weight:700}
     .main{
       display:grid;
       grid-template-columns:minmax(280px,1fr) 330px;
       gap:14px;
       min-height:0;
     }
-    .boardWrap{
-      background:rgba(15,23,42,.86);
+    .boardWrap,.sideCard{
+      background:var(--panel);
       backdrop-filter:blur(12px);
       border:1px solid rgba(255,255,255,.08);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
+    }
+    .boardWrap{
       padding:14px;
       display:flex;
       align-items:center;
@@ -128,9 +124,9 @@
       position:relative;
       border-radius:30px;
       overflow:hidden;
-      box-shadow:0 22px 70px rgba(0,0,0,.38);
       border:1px solid rgba(255,255,255,.08);
       background:#000;
+      box-shadow:0 22px 70px rgba(0,0,0,.38);
       touch-action:none;
       user-select:none;
     }
@@ -149,18 +145,14 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      touch-action:manipulation;
       cursor:pointer;
       outline:none;
+      touch-action:manipulation;
     }
     .sq.light{background:var(--light)}
     .sq.dark{background:var(--dark)}
-    .sq.sel{
-      box-shadow:inset 0 0 0 5px rgba(56,189,248,.96);
-    }
-    .sq.last{
-      box-shadow:inset 0 0 0 5px rgba(255,209,102,.75);
-    }
+    .sq.sel{box-shadow:inset 0 0 0 5px rgba(56,189,248,.96)}
+    .sq.last{box-shadow:inset 0 0 0 5px rgba(255,209,102,.75)}
     .sq.target::after{
       content:"";
       width:16%;
@@ -178,39 +170,24 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      font-size:clamp(2rem,6vw,4.6rem);
+      font-size:clamp(2rem,6vw,4.7rem);
       line-height:1;
       font-weight:700;
       pointer-events:none;
       transition:transform .12s ease, filter .12s ease;
       text-shadow:0 2px 3px rgba(0,0,0,.3);
     }
-    .piece.white{
-      color:#fff;
-      filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));
-    }
-    .piece.black{
-      color:#111827;
-      text-shadow:0 1px 0 rgba(255,255,255,.35);
-    }
-    .piece.selPiece{
-      transform:scale(1.06);
-    }
-    .check{
-      box-shadow:inset 0 0 0 5px rgba(255,107,107,.9);
-    }
+    .piece.white{color:#fff;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
+    .piece.black{color:#111827;text-shadow:0 1px 0 rgba(255,255,255,.35)}
+    .piece.selPiece{transform:scale(1.06)}
+    .check{box-shadow:inset 0 0 0 5px rgba(255,107,107,.9)}
     .side{
       min-height:0;
       display:flex;
       flex-direction:column;
       gap:14px;
     }
-    .card{
-      background:rgba(15,23,42,.86);
-      backdrop-filter:blur(12px);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
+    .sideCard{
       padding:14px;
     }
     .clockBox{
@@ -225,9 +202,7 @@
       display:grid;
       gap:6px;
     }
-    .clock.active{
-      outline:2px solid rgba(56,189,248,.55);
-    }
+    .clock.active{outline:2px solid rgba(56,189,248,.55)}
     .clock .name{
       display:flex;
       justify-content:space-between;
@@ -240,19 +215,9 @@
       font-weight:900;
       letter-spacing:.5px;
     }
-    .status{
-      display:grid;
-      gap:6px;
-    }
-    .status .label{
-      color:var(--muted);
-      font-size:13px;
-    }
-    .status .value{
-      font-size:16px;
-      line-height:1.45;
-      font-weight:600;
-    }
+    .status{display:grid;gap:6px}
+    .status .label{color:var(--muted);font-size:13px}
+    .status .value{font-size:16px;line-height:1.45;font-weight:600}
     .moves{
       max-height:250px;
       overflow:auto;
@@ -284,7 +249,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      background:linear-gradient(180deg,rgba(3,7,18,.74),rgba(3,7,18,.50));
+      background:linear-gradient(180deg,rgba(3,7,18,.78),rgba(3,7,18,.52));
       backdrop-filter:blur(12px);
       z-index:20;
       padding:16px;
@@ -292,7 +257,7 @@
     .overlay.hidden{display:none}
     .modal{
       width:min(94%,480px);
-      background:rgba(15,23,42,.96);
+      background:rgba(15,23,42,.97);
       border:1px solid rgba(255,255,255,.1);
       border-radius:28px;
       box-shadow:var(--shadow);
@@ -305,11 +270,7 @@
       margin:0;
       font-size:clamp(22px,4vw,32px);
     }
-    .modal p{
-      margin:0;
-      color:var(--muted);
-      line-height:1.5;
-    }
+    .modal p{margin:0;color:var(--muted);line-height:1.5}
     .modal .big{
       font-size:42px;
       font-weight:900;
@@ -335,9 +296,98 @@
     }
     .promoBtn:active{transform:scale(.98)}
     .promoBtn:hover{background:rgba(255,255,255,.12)}
-    .small{
+    .smallNote{
       font-size:12px;
       color:var(--muted);
+    }
+    .landing{
+      position:fixed;
+      inset:0;
+      z-index:50;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,.16), transparent 34%),
+        radial-gradient(circle at top right, rgba(34,197,94,.10), transparent 26%),
+        linear-gradient(180deg, #0b1220 0%, #07111f 100%);
+    }
+    .landing.hidden{display:none}
+    .landingCard{
+      width:min(100%,560px);
+      min-height:420px;
+      display:grid;
+      grid-template-rows:auto 1fr auto;
+      gap:20px;
+      padding:24px 20px;
+      border-radius:30px;
+      background:rgba(15,23,42,.78);
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(14px);
+      text-align:center;
+    }
+    .landingTop{
+      display:grid;
+      gap:6px;
+      justify-items:center;
+    }
+    .landingTop .mini{
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.4px;
+    }
+    .landingTop h1{
+      margin:0;
+      font-size:clamp(36px,8vw,60px);
+      line-height:1;
+      letter-spacing:1px;
+    }
+    .landingTop p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.5;
+      max-width:44ch;
+      font-size:14px;
+    }
+    .playArea{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .playBtn{
+      width:min(54vw,220px);
+      aspect-ratio:1/1;
+      border-radius:999px;
+      border:0;
+      cursor:pointer;
+      background:linear-gradient(180deg,#38bdf8,#0ea5e9);
+      color:#04121b;
+      font-size:clamp(30px,6vw,54px);
+      font-weight:900;
+      letter-spacing:1px;
+      box-shadow:
+        0 16px 40px rgba(14,165,233,.32),
+        inset 0 1px 0 rgba(255,255,255,.4);
+      transition:transform .12s ease, filter .12s ease;
+      user-select:none;
+      touch-action:manipulation;
+    }
+    .playBtn:active{transform:scale(.98)}
+    .landingBottom{
+      display:grid;
+      gap:8px;
+      justify-items:center;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+    }
+    .landingBottom .pill{
+      padding:7px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
     }
     @media (max-width: 940px){
       html,body{overflow:auto}
@@ -348,11 +398,30 @@
   </style>
 </head>
 <body>
+  <div class="landing" id="landing">
+    <div class="landingCard">
+      <div class="landingTop">
+        <div class="mini">Semiswky tarafından oluşturulan</div>
+        <h1>LİTTLE CHESS</h1>
+        <p>Tek dosyada çalışan satranç oyunu. Beyaz senin tarafın, siyah bot oynar. Rok, terfi, en passant ve 10 dakikalık saat sistemi açık.</p>
+      </div>
+
+      <div class="playArea">
+        <button class="playBtn" id="landingPlay">OYNA</button>
+      </div>
+
+      <div class="landingBottom">
+        <div class="pill">Dokun: önce taş, sonra hedef kare</div>
+        <div>Alttan başlayan beyaz taşlar, üstten başlayan siyah taşlar.</div>
+      </div>
+    </div>
+  </div>
+
   <div class="app">
     <div class="topbar">
-      <div class="title">
-        <h1>chesslittle</h1>
-        <div class="sub">Dokun: önce taş, sonra hedef kare. Beyaz altta başlar. Rok, en passant, terfi, şah, mat ve süre sistemi açık.</div>
+      <div class="brand">
+        <div class="small">Semiswky tarafından oluşturulan</div>
+        <h1>LİTTLE CHESS</h1>
       </div>
       <div class="actions">
         <button class="btn primary" id="startBtn">Başlat</button>
@@ -369,11 +438,11 @@
 
           <div class="overlay" id="overlay">
             <div class="modal">
-              <h2>Satranç hazır</h2>
-              <div class="big">chesslittle</div>
-              <p>Beyaz senin tarafın. Siyah bot oynar. Her oyuncuda 10 dakika var. Tahta üstten görünür.</p>
+              <h2>Oyun hazır</h2>
+              <div class="big">LİTTLE CHESS</div>
+              <p>Başlat’a basınca 8x8 tahta açılır. Her oyuncuda 10 dakika vardır. Siyah bot, oyunun içindeki aramayla hamle yapar.</p>
               <button class="btn primary" id="overlayStart">Başlat</button>
-              <div class="small">Mobilde parmağınla seç → hedef kareye dokun.</div>
+              <div class="smallNote">Mobilde parmağınla seç → hedef kareye dokun.</div>
             </div>
           </div>
 
@@ -393,7 +462,7 @@
       </div>
 
       <div class="side">
-        <div class="card clockBox">
+        <div class="sideCard clockBox">
           <div class="clock" id="whiteClock">
             <div class="name"><span>Beyaz</span><span>Sen</span></div>
             <div class="time" id="whiteTime">10:00</div>
@@ -404,21 +473,21 @@
           </div>
         </div>
 
-        <div class="card status">
+        <div class="sideCard status">
           <div class="label">Durum</div>
           <div class="value" id="status">Başlat tuşuna bas.</div>
         </div>
 
-        <div class="card">
+        <div class="sideCard">
           <div class="label" style="color:var(--muted);font-size:13px;margin-bottom:10px;">Son hamleler</div>
           <div class="moves" id="moves"></div>
         </div>
 
-        <div class="card help">
-          <div>• Taşa dokun, sonra hedef kareye dokun.</div>
-          <div>• Yasal hamleler mavi nokta ile gösterilir.</div>
-          <div>• Bot internet kullanmaz; oyunun içinde arama yapar.</div>
-          <div>• Terfi, rok, en passant ve şah kontrolü çalışır.</div>
+        <div class="sideCard help">
+          <div>• Seçilen kare mavi çerçeveyle görünür.</div>
+          <div>• Yasal hedefler nokta ile işaretlenir.</div>
+          <div>• Rok, en passant ve terfi desteklenir.</div>
+          <div>• Bot internet kullanmaz, oyunun içinde karar verir.</div>
         </div>
       </div>
     </div>
@@ -433,6 +502,8 @@
 
   const FILES = ["a","b","c","d","e","f","g","h"];
   const BOARD = document.getElementById("board");
+  const LANDING = document.getElementById("landing");
+  const LANDING_PLAY = document.getElementById("landingPlay");
   const OVERLAY = document.getElementById("overlay");
   const PROMO_OVERLAY = document.getElementById("promoOverlay");
   const STARTBTN = document.getElementById("startBtn");
@@ -447,11 +518,12 @@
   const STATUS = document.getElementById("status");
   const MOVES = document.getElementById("moves");
 
+  const START_TIME = 10 * 60 * 1000;
   const BOT_TIME_LIMIT_MS = 2200;
   const BOT_MAX_DEPTH = 4;
-  const START_TIME = 10 * 60 * 1000;
   const MATE_SCORE = 999999;
 
+  const VAL = { p:100, n:320, b:330, r:500, q:900, k:20000 };
   const PST = {
     p:[[0,0,0,0,0,0,0,0],[5,10,10,-20,-20,10,10,5],[5,-5,-10,0,0,-10,-5,5],[0,0,0,20,20,0,0,0],[5,5,10,25,25,10,5,5],[10,10,20,30,30,20,10,10],[50,50,50,50,50,50,50,50],[0,0,0,0,0,0,0,0]],
     n:[[-50,-40,-30,-30,-30,-30,-40,-50],[-40,-20,0,0,0,0,-20,-40],[-30,0,10,15,15,10,0,-30],[-30,5,15,20,20,15,5,-30],[-30,0,15,20,20,15,0,-30],[-30,5,10,15,15,10,5,-30],[-40,-20,0,5,5,0,-20,-40],[-50,-40,-30,-30,-30,-30,-40,-50]],
@@ -460,8 +532,6 @@
     q:[[-20,-10,-10,-5,-5,-10,-10,-20],[-10,0,0,0,0,5,0,-10],[-10,0,5,5,5,5,5,-10],[-5,0,5,5,5,5,0,-5],[0,0,5,5,5,5,0,-5],[-10,5,5,5,5,5,0,-10],[-10,0,5,0,0,0,0,-10],[-20,-10,-10,-5,-5,-10,-10,-20]],
     k:[[-30,-40,-40,-50,-50,-40,-40,-30],[-30,-40,-40,-50,-50,-40,-40,-30],[-30,-40,-40,-50,-50,-40,-40,-30],[-30,-40,-40,-50,-50,-40,-40,-30],[-20,-30,-30,-40,-40,-30,-30,-20],[-10,-20,-20,-20,-20,-20,-20,-10],[20,20,0,0,0,0,20,20],[20,30,10,0,0,10,30,20]]
   };
-
-  const VAL = { p:100, n:320, b:330, r:500, q:900, k:20000 };
 
   const state = {
     board: [],
@@ -485,28 +555,25 @@
     status: "Başlat tuşuna bas."
   };
 
-  const P = (c,t,id) => ({ c, t, moved:false, id });
+  const piece = (c,t,id) => ({ c, t, moved:false, id });
 
   function initialBoard() {
     return [
-      [P("b","r","br1"),P("b","n","bn1"),P("b","b","bb1"),P("b","q","bq"),P("b","k","bk"),P("b","b","bb2"),P("b","n","bn2"),P("b","r","br2")],
-      [P("b","p","bp1"),P("b","p","bp2"),P("b","p","bp3"),P("b","p","bp4"),P("b","p","bp5"),P("b","p","bp6"),P("b","p","bp7"),P("b","p","bp8")],
+      [piece("b","r","br1"),piece("b","n","bn1"),piece("b","b","bb1"),piece("b","q","bq"),piece("b","k","bk"),piece("b","b","bb2"),piece("b","n","bn2"),piece("b","r","br2")],
+      [piece("b","p","bp1"),piece("b","p","bp2"),piece("b","p","bp3"),piece("b","p","bp4"),piece("b","p","bp5"),piece("b","p","bp6"),piece("b","p","bp7"),piece("b","p","bp8")],
       [null,null,null,null,null,null,null,null],
       [null,null,null,null,null,null,null,null],
       [null,null,null,null,null,null,null,null],
       [null,null,null,null,null,null,null,null],
-      [P("w","p","wp1"),P("w","p","wp2"),P("w","p","wp3"),P("w","p","wp4"),P("w","p","wp5"),P("w","p","wp6"),P("w","p","wp7"),P("w","p","wp8")],
-      [P("w","r","wr1"),P("w","n","wn1"),P("w","b","wb1"),P("w","q","wq"),P("w","k","wk"),P("w","b","wb2"),P("w","n","wn2"),P("w","r","wr2")]
+      [piece("w","p","wp1"),piece("w","p","wp2"),piece("w","p","wp3"),piece("w","p","wp4"),piece("w","p","wp5"),piece("w","p","wp6"),piece("w","p","wp7"),piece("w","p","wp8")],
+      [piece("w","r","wr1"),piece("w","n","wn1"),piece("w","b","wb1"),piece("w","q","wq"),piece("w","k","wk"),piece("w","b","wb2"),piece("w","n","wn2"),piece("w","r","wr2")]
     ];
   }
 
-  function cloneBoard(board) {
-    return board.map(row => row.map(p => p ? { ...p } : null));
-  }
-
-  function other(color) { return color === "w" ? "b" : "w"; }
-  function inBounds(r,c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
-  function squareName(r,c) { return `${FILES[c]}${8-r}`; }
+  function cloneBoard(board) { return board.map(row => row.map(p => p ? { ...p } : null)); }
+  function other(color){ return color === "w" ? "b" : "w"; }
+  function inBounds(r,c){ return r >= 0 && r < 8 && c >= 0 && c < 8; }
+  function squareName(r,c){ return `${FILES[c]}${8-r}`; }
 
   function ensureAudio() {
     if (!state.audioCtx) {
@@ -518,7 +585,7 @@
     }
   }
 
-  function beep(freq = 440, dur = 0.08, type = "sine", vol = 0.03) {
+  function beep(freq=440, dur=.08, type="sine", vol=.03) {
     if (!state.soundOn) return;
     ensureAudio();
     const ac = state.audioCtx;
@@ -537,11 +604,9 @@
   }
 
   function findKing(board, color) {
-    for (let r = 0; r < 8; r++) {
-      for (let c = 0; c < 8; c++) {
-        const p = board[r][c];
-        if (p && p.c === color && p.t === "k") return { r, c };
-      }
+    for (let r=0; r<8; r++) for (let c=0; c<8; c++) {
+      const p = board[r][c];
+      if (p && p.c === color && p.t === "k") return { r, c };
     }
     return null;
   }
@@ -556,9 +621,7 @@
       }
     }
 
-    const knightMoves = [
-      [-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]
-    ];
+    const knightMoves = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
     for (const [dr,dc] of knightMoves) {
       const rr = r + dr, cc = c + dc;
       if (inBounds(rr,cc)) {
@@ -567,83 +630,7 @@
       }
     }
 
-    const lines = [
+    const rays = [
       [1,0,["r","q"]],[-1,0,["r","q"]],[0,1,["r","q"]],[0,-1,["r","q"]],
       [1,1,["b","q"]],[1,-1,["b","q"]],[-1,1,["b","q"]],[-1,-1,["b","q"]]
     ];
-    for (const [dr,dc,allowed] of lines) {
-      let rr = r + dr, cc = c + dc;
-      while (inBounds(rr,cc)) {
-        const p = board[rr][cc];
-        if (p) {
-          if (p.c === byColor && allowed.includes(p.t)) return true;
-          break;
-        }
-        rr += dr; cc += dc;
-      }
-    }
-
-    for (let dr = -1; dr <= 1; dr++) {
-      for (let dc = -1; dc <= 1; dc++) {
-        if (dr === 0 && dc === 0) continue;
-        const rr = r + dr, cc = c + dc;
-        if (!inBounds(rr,cc)) continue;
-        const p = board[rr][cc];
-        if (p && p.c === byColor && p.t === "k") return true;
-      }
-    }
-    return false;
-  }
-
-  function generatePseudoMoves(board, color, enPassant) {
-    const moves = [];
-    const forward = color === "w" ? -1 : 1;
-    const startRow = color === "w" ? 6 : 1;
-    const promoRow = color === "w" ? 0 : 7;
-
-    for (let r = 0; r < 8; r++) {
-      for (let c = 0; c < 8; c++) {
-        const p = board[r][c];
-        if (!p || p.c !== color) continue;
-
-        const push = (toR, toC, extra = {}) => {
-          if (!inBounds(toR,toC)) return;
-          const target = board[toR][toC];
-          if (target && target.c === color) return;
-          moves.push({
-            from: { r, c },
-            to: { r: toR, c: toC },
-            piece: { ...p },
-            capture: target || null,
-            ...extra
-          });
-        };
-
-        if (p.t === "p") {
-          const one = r + forward;
-          if (inBounds(one,c) && !board[one][c]) {
-            push(one, c, one === promoRow ? { promotion: "q" } : {});
-            const two = r + forward * 2;
-            if (r === startRow && !board[two][c]) push(two, c, { doubleStep: true });
-          }
-          for (const dc of [-1,1]) {
-            const rr = r + forward, cc = c + dc;
-            if (!inBounds(rr,cc)) continue;
-            const target = board[rr][cc];
-            if (target && target.c !== color) {
-              push(rr, cc, rr === promoRow ? { promotion: "q" } : {});
-            }
-            if (enPassant && enPassant.r === rr && enPassant.c === cc) {
-              push(rr, cc, { enPassant: true });
-            }
-          }
-        } else if (p.t === "n") {
-          const jumps = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
-          for (const [dr,dc] of jumps) push(r + dr, c + dc);
-        } else if (p.t === "b" || p.t === "r" || p.t === "q") {
-          const dirs = [];
-          if (p.t === "b" || p.t === "q") dirs.push([1,1],[1,-1],[-1,1],[-1,-1]);
-          if (p.t === "r" || p.t === "q") dirs.push([1,0],[-1,0],[0,1],[0,-1]);
-          for (const [dr,dc] of dirs) {
-            let rr = r + dr, cc = c + dc;
-            while (inBounds(rr,cc
