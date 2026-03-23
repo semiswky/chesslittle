@@ -1,41 +1,350 @@
-<!DOCTYPE html><html lang="tr">
+<!DOCTYPE html>
+<html lang="tr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>chesslittle</title>
   <style>
     :root{
-      --bg:#0b1220; --panel:#111a2d; --panel2:#16213a; --text:#eef4ff; --muted:#9fb0d0;
-      --light:#eeeed2; --dark:#769656; --accent:#53d1ff; --danger:#ff6b6b; --gold:#ffd166;
-      --shadow:0 18px 60px rgba(0,0,0,.32); --radius:24px;
+      --bg:#07111f;
+      --panel:#0f172a;
+      --panel2:#152238;
+      --text:#eef4ff;
+      --muted:#94a3b8;
+      --light:#eeeed2;
+      --dark:#769656;
+      --accent:#38bdf8;
+      --accent2:#22c55e;
+      --danger:#ff6b6b;
+      --gold:#ffd166;
+      --shadow:0 18px 60px rgba(0,0,0,.35);
+      --radius:24px;
     }
-    *{box-sizing:border-box} html,body{margin:0;height:100%;background:radial-gradient(circle at top,#16213a,#0b1220 58%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;overflow:hidden}
-    button{font:inherit}
-    .app{min-height:100vh;display:grid;grid-template-rows:auto 1fr;gap:14px;padding:14px;max-width:1200px;margin:0 auto}
-    .topbar{background:rgba(17,26,45,.88);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
-    .title{display:flex;flex-direction:column;gap:2px}.title h1{margin:0;font-size:clamp(20px,3vw,32px);line-height:1.05}.title .sub{color:var(--muted);font-size:13px}
-    .actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
-    .btn{border:0;border-radius:18px;padding:12px 16px;background:linear-gradient(180deg,#263556,#1b2843);color:var(--text);box-shadow:inset 0 1px 0 rgba(255,255,255,.08);cursor:pointer;transition:.15s transform,.15s opacity,.15s background;user-select:none;touch-action:manipulation}
-    .btn:active{transform:scale(.98)} .btn.primary{background:linear-gradient(180deg,#2dd4bf,#0ea5e9);color:#06121b;font-weight:700}
-    .main{display:grid;grid-template-columns:minmax(280px,1fr) 310px;gap:14px;min-height:0}
-    .boardWrap{background:rgba(17,26,45,.88);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;display:flex;align-items:center;justify-content:center;min-height:0}
-    .boardShell{width:min(100%,760px);aspect-ratio:1/1;position:relative;border-radius:28px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);background:#000;touch-action:none;user-select:none}
-    .board{position:absolute;inset:0;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr)}
-    .sq{position:relative;border:0;padding:0;margin:0;display:flex;align-items:center;justify-content:center;touch-action:manipulation;cursor:pointer}
-    .sq.light{background:var(--light)} .sq.dark{background:var(--dark)} .sq.sel{box-shadow:inset 0 0 0 5px rgba(83,209,255,.92)} .sq.last{box-shadow:inset 0 0 0 5px rgba(255,209,102,.7)}
-    .sq.target::after{content:"";width:16%;height:16%;min-width:12px;min-height:12px;border-radius:999px;background:rgba(0,0,0,.22);box-shadow:0 0 0 8px rgba(255,255,255,.14)}
-    .piece{position:absolute;inset:8%;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:clamp(2.2rem,5.8vw,4.5rem);line-height:1;font-weight:700;pointer-events:none;transition:transform .12s ease;text-shadow:0 2px 3px rgba(0,0,0,.3)}
-    .piece.white{color:#fff}.piece.black{color:#111827;text-shadow:0 1px 0 rgba(255,255,255,.35)} .piece.selPiece{transform:scale(1.06)}
-    .check{box-shadow:inset 0 0 0 5px rgba(255,107,107,.9)}
-    .side{min-height:0;display:flex;flex-direction:column;gap:14px}.card{background:rgba(17,26,45,.88);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
-    .clockBox{display:grid;gap:12px}.clock{border-radius:22px;padding:14px;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.08);display:grid;gap:6px}.clock.active{outline:2px solid rgba(83,209,255,.55)}
-    .clock .name{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px}.clock .time{font-size:clamp(28px,4vw,40px);font-weight:800;letter-spacing:.5px}
-    .status{display:grid;gap:6px}.status .label{color:var(--muted);font-size:13px}.status .value{font-size:16px;line-height:1.45;font-weight:600}
-    .moves{max-height:240px;overflow:auto;padding-right:4px;display:grid;gap:8px}.moveRow{display:grid;grid-template-columns:52px 1fr;gap:8px;align-items:center;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);padding:10px 12px;font-size:14px}.moveRow .idx{color:var(--gold);font-weight:700}.moveRow .txt{color:var(--text)}
-    .help{color:var(--muted);font-size:13px;line-height:1.55}
-    .overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(3,7,18,.72),rgba(3,7,18,.46));backdrop-filter:blur(10px);z-index:20}.overlay.hidden{display:none}
-    .modal{width:min(92%,460px);background:rgba(17,26,45,.96);border:1px solid rgba(255,255,255,.1);border-radius:28px;box-shadow:var(--shadow);padding:22px;display:grid;gap:12px;text-align:center}.modal h2{margin:0;font-size:clamp(22px,4vw,30px)}.modal p{margin:0;color:var(--muted);line-height:1.5}.modal .big{font-size:42px;font-weight:900;letter-spacing:1px;margin:4px 0 8px}
-    @media (max-width:920px){html,body{overflow:auto}.main{grid-template-columns:1fr}.side{order:2}.boardWrap{order:1}}
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      height:100%;
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,.16), transparent 30%),
+        radial-gradient(circle at top right, rgba(34,197,94,.10), transparent 25%),
+        linear-gradient(180deg, #0b1220 0%, #07111f 100%);
+      color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      overflow:hidden;
+    }
+    button, input{font:inherit}
+    .app{
+      min-height:100vh;
+      display:grid;
+      grid-template-rows:auto 1fr;
+      gap:14px;
+      padding:14px;
+      max-width:1250px;
+      margin:0 auto;
+    }
+    .topbar{
+      background:rgba(15,23,42,.88);
+      backdrop-filter:blur(12px);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:12px;
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:12px;
+      align-items:center;
+    }
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+    }
+    .title h1{
+      margin:0;
+      font-size:clamp(20px,3.4vw,34px);
+      line-height:1;
+      letter-spacing:.2px;
+    }
+    .title .sub{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.4;
+    }
+    .actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .btn{
+      border:0;
+      border-radius:18px;
+      padding:11px 15px;
+      background:linear-gradient(180deg,#22314f,#18243a);
+      color:var(--text);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+      cursor:pointer;
+      transition:transform .12s ease, opacity .12s ease, background .12s ease;
+      user-select:none;
+      touch-action:manipulation;
+    }
+    .btn:hover{opacity:.96}
+    .btn:active{transform:scale(.98)}
+    .btn.primary{
+      background:linear-gradient(180deg,#2dd4bf,#0ea5e9);
+      color:#04121b;
+      font-weight:800;
+    }
+    .btn.danger{
+      background:linear-gradient(180deg,#ef4444,#dc2626);
+      color:white;
+      font-weight:700;
+    }
+    .btn.ghost{
+      background:rgba(255,255,255,.07);
+    }
+    .main{
+      display:grid;
+      grid-template-columns:minmax(280px,1fr) 330px;
+      gap:14px;
+      min-height:0;
+    }
+    .boardWrap{
+      background:rgba(15,23,42,.86);
+      backdrop-filter:blur(12px);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:0;
+    }
+    .boardShell{
+      width:min(100%,780px);
+      aspect-ratio:1/1;
+      position:relative;
+      border-radius:30px;
+      overflow:hidden;
+      box-shadow:0 22px 70px rgba(0,0,0,.38);
+      border:1px solid rgba(255,255,255,.08);
+      background:#000;
+      touch-action:none;
+      user-select:none;
+    }
+    .board{
+      position:absolute;
+      inset:0;
+      display:grid;
+      grid-template-columns:repeat(8,1fr);
+      grid-template-rows:repeat(8,1fr);
+    }
+    .sq{
+      position:relative;
+      border:0;
+      padding:0;
+      margin:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      touch-action:manipulation;
+      cursor:pointer;
+      outline:none;
+    }
+    .sq.light{background:var(--light)}
+    .sq.dark{background:var(--dark)}
+    .sq.sel{
+      box-shadow:inset 0 0 0 5px rgba(56,189,248,.96);
+    }
+    .sq.last{
+      box-shadow:inset 0 0 0 5px rgba(255,209,102,.75);
+    }
+    .sq.target::after{
+      content:"";
+      width:16%;
+      height:16%;
+      min-width:12px;
+      min-height:12px;
+      border-radius:999px;
+      background:rgba(0,0,0,.24);
+      box-shadow:0 0 0 8px rgba(255,255,255,.14);
+    }
+    .piece{
+      position:absolute;
+      inset:8%;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:clamp(2rem,6vw,4.6rem);
+      line-height:1;
+      font-weight:700;
+      pointer-events:none;
+      transition:transform .12s ease, filter .12s ease;
+      text-shadow:0 2px 3px rgba(0,0,0,.3);
+    }
+    .piece.white{
+      color:#fff;
+      filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));
+    }
+    .piece.black{
+      color:#111827;
+      text-shadow:0 1px 0 rgba(255,255,255,.35);
+    }
+    .piece.selPiece{
+      transform:scale(1.06);
+    }
+    .check{
+      box-shadow:inset 0 0 0 5px rgba(255,107,107,.9);
+    }
+    .side{
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+    .card{
+      background:rgba(15,23,42,.86);
+      backdrop-filter:blur(12px);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+    }
+    .clockBox{
+      display:grid;
+      gap:12px;
+    }
+    .clock{
+      border-radius:22px;
+      padding:14px;
+      background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.08);
+      display:grid;
+      gap:6px;
+    }
+    .clock.active{
+      outline:2px solid rgba(56,189,248,.55);
+    }
+    .clock .name{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .clock .time{
+      font-size:clamp(30px,4.6vw,42px);
+      font-weight:900;
+      letter-spacing:.5px;
+    }
+    .status{
+      display:grid;
+      gap:6px;
+    }
+    .status .label{
+      color:var(--muted);
+      font-size:13px;
+    }
+    .status .value{
+      font-size:16px;
+      line-height:1.45;
+      font-weight:600;
+    }
+    .moves{
+      max-height:250px;
+      overflow:auto;
+      padding-right:4px;
+      display:grid;
+      gap:8px;
+    }
+    .moveRow{
+      display:grid;
+      grid-template-columns:54px 1fr;
+      gap:8px;
+      align-items:center;
+      border-radius:14px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.06);
+      padding:10px 12px;
+      font-size:14px;
+    }
+    .moveRow .idx{color:var(--gold);font-weight:800}
+    .moveRow .txt{color:var(--text)}
+    .help{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+    }
+    .overlay{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(180deg,rgba(3,7,18,.74),rgba(3,7,18,.50));
+      backdrop-filter:blur(12px);
+      z-index:20;
+      padding:16px;
+    }
+    .overlay.hidden{display:none}
+    .modal{
+      width:min(94%,480px);
+      background:rgba(15,23,42,.96);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:22px;
+      display:grid;
+      gap:12px;
+      text-align:center;
+    }
+    .modal h2{
+      margin:0;
+      font-size:clamp(22px,4vw,32px);
+    }
+    .modal p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.5;
+    }
+    .modal .big{
+      font-size:42px;
+      font-weight:900;
+      letter-spacing:1px;
+      margin:4px 0 8px;
+    }
+    .promoGrid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+      margin-top:6px;
+    }
+    .promoBtn{
+      border:0;
+      border-radius:18px;
+      padding:14px 8px;
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+      font-size:26px;
+      cursor:pointer;
+      transition:transform .12s ease, background .12s ease;
+      user-select:none;
+    }
+    .promoBtn:active{transform:scale(.98)}
+    .promoBtn:hover{background:rgba(255,255,255,.12)}
+    .small{
+      font-size:12px;
+      color:var(--muted);
+    }
+    @media (max-width: 940px){
+      html,body{overflow:auto}
+      .main{grid-template-columns:1fr}
+      .side{order:2}
+      .boardWrap{order:1}
+    }
   </style>
 </head>
 <body>
@@ -43,53 +352,94 @@
     <div class="topbar">
       <div class="title">
         <h1>chesslittle</h1>
-        <div class="sub">Dokun: önce taş, sonra hedef kare. Beyaz altta başlar. Terfi, rok ve en passant açık.</div>
+        <div class="sub">Dokun: önce taş, sonra hedef kare. Beyaz altta başlar. Rok, en passant, terfi, şah, mat ve süre sistemi açık.</div>
       </div>
       <div class="actions">
         <button class="btn primary" id="startBtn">Başlat</button>
-        <button class="btn" id="undoBtn">Geri al</button>
-        <button class="btn" id="resetBtn">Sıfırla</button>
+        <button class="btn ghost" id="undoBtn">Geri al</button>
+        <button class="btn ghost" id="soundBtn">Ses: Açık</button>
+        <button class="btn danger" id="resetBtn">Sıfırla</button>
       </div>
-    </div><div class="main">
-  <div class="boardWrap">
-    <div class="boardShell" id="boardShell">
-      <div class="board" id="board"></div>
-      <div class="overlay" id="overlay">
-        <div class="modal">
-          <h2>Satranç hazır</h2>
-          <div class="big">chesslittle</div>
-          <p>Beyaz senin tarafın. Siyah bot oynar. Her oyuncuda 10 dakika var.</p>
-          <button class="btn primary" id="overlayStart">Başlat</button>
+    </div>
+
+    <div class="main">
+      <div class="boardWrap">
+        <div class="boardShell" id="boardShell">
+          <div class="board" id="board"></div>
+
+          <div class="overlay" id="overlay">
+            <div class="modal">
+              <h2>Satranç hazır</h2>
+              <div class="big">chesslittle</div>
+              <p>Beyaz senin tarafın. Siyah bot oynar. Her oyuncuda 10 dakika var. Tahta üstten görünür.</p>
+              <button class="btn primary" id="overlayStart">Başlat</button>
+              <div class="small">Mobilde parmağınla seç → hedef kareye dokun.</div>
+            </div>
+          </div>
+
+          <div class="overlay hidden" id="promoOverlay">
+            <div class="modal">
+              <h2>Terfi seç</h2>
+              <p>Piyon son sıraya ulaştı. Hangi taşa dönüşsün?</p>
+              <div class="promoGrid">
+                <button class="promoBtn" data-promo="q" title="Vezir">♕</button>
+                <button class="promoBtn" data-promo="r" title="Kale">♖</button>
+                <button class="promoBtn" data-promo="b" title="Fil">♗</button>
+                <button class="promoBtn" data-promo="n" title="At">♘</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="side">
+        <div class="card clockBox">
+          <div class="clock" id="whiteClock">
+            <div class="name"><span>Beyaz</span><span>Sen</span></div>
+            <div class="time" id="whiteTime">10:00</div>
+          </div>
+          <div class="clock" id="blackClock">
+            <div class="name"><span>Siyah</span><span>Bot</span></div>
+            <div class="time" id="blackTime">10:00</div>
+          </div>
+        </div>
+
+        <div class="card status">
+          <div class="label">Durum</div>
+          <div class="value" id="status">Başlat tuşuna bas.</div>
+        </div>
+
+        <div class="card">
+          <div class="label" style="color:var(--muted);font-size:13px;margin-bottom:10px;">Son hamleler</div>
+          <div class="moves" id="moves"></div>
+        </div>
+
+        <div class="card help">
+          <div>• Taşa dokun, sonra hedef kareye dokun.</div>
+          <div>• Yasal hamleler mavi nokta ile gösterilir.</div>
+          <div>• Bot internet kullanmaz; oyunun içinde arama yapar.</div>
+          <div>• Terfi, rok, en passant ve şah kontrolü çalışır.</div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="side">
-    <div class="card clockBox">
-      <div class="clock" id="whiteClock"><div class="name"><span>Beyaz</span><span>Sen</span></div><div class="time" id="whiteTime">10:00</div></div>
-      <div class="clock" id="blackClock"><div class="name"><span>Siyah</span><span>Bot</span></div><div class="time" id="blackTime">10:00</div></div>
-    </div>
-    <div class="card status"><div class="label">Durum</div><div class="value" id="status">Başlat tuşuna bas.</div></div>
-    <div class="card"><div class="label" style="color:var(--muted);font-size:13px;margin-bottom:10px;">Son hamleler</div><div class="moves" id="moves"></div></div>
-    <div class="card help">
-      <div>• Taş seçmek için dokun, sonra hedef kareye dokun.</div>
-      <div>• Rok, en passant ve terfi destekli.</div>
-      <div>• Bot oyunun içinde arama yapar; internet gerekmez. Böyle daha hızlı ve akıcı kalır.</div>
-    </div>
-  </div>
-</div>
-
-  </div><script>
+<script>
 (() => {
-  const PIECE = { wk:"♔", wq:"♕", wr:"♖", wb:"♗", wn:"♘", wp:"♙", bk:"♚", bq:"♛", br:"♜", bb:"♝", bn:"♞", bp:"♟" };
+  const PIECE = {
+    wk:"♔", wq:"♕", wr:"♖", wb:"♗", wn:"♘", wp:"♙",
+    bk:"♚", bq:"♛", br:"♜", bb:"♝", bn:"♞", bp:"♟"
+  };
+
   const FILES = ["a","b","c","d","e","f","g","h"];
   const BOARD = document.getElementById("board");
   const OVERLAY = document.getElementById("overlay");
+  const PROMO_OVERLAY = document.getElementById("promoOverlay");
   const STARTBTN = document.getElementById("startBtn");
   const OVERLAYBTN = document.getElementById("overlayStart");
   const RESETBTN = document.getElementById("resetBtn");
   const UNDOBTN = document.getElementById("undoBtn");
+  const SOUNDBTN = document.getElementById("soundBtn");
   const WTIME = document.getElementById("whiteTime");
   const BTIME = document.getElementById("blackTime");
   const WCLOCK = document.getElementById("whiteClock");
@@ -97,9 +447,10 @@
   const STATUS = document.getElementById("status");
   const MOVES = document.getElementById("moves");
 
-  const BOT_TIME_LIMIT_MS = 3500;
-  const BOT_MAX_DEPTH = 5;
+  const BOT_TIME_LIMIT_MS = 2200;
+  const BOT_MAX_DEPTH = 4;
   const START_TIME = 10 * 60 * 1000;
+  const MATE_SCORE = 999999;
 
   const PST = {
     p:[[0,0,0,0,0,0,0,0],[5,10,10,-20,-20,10,10,5],[5,-5,-10,0,0,-10,-5,5],[0,0,0,20,20,0,0,0],[5,5,10,25,25,10,5,5],[10,10,20,30,30,20,10,10],[50,50,50,50,50,50,50,50],[0,0,0,0,0,0,0,0]],
@@ -109,110 +460,190 @@
     q:[[-20,-10,-10,-5,-5,-10,-10,-20],[-10,0,0,0,0,5,0,-10],[-10,0,5,5,5,5,5,-10],[-5,0,5,5,5,5,0,-5],[0,0,5,5,5,5,0,-5],[-10,5,5,5,5,5,0,-10],[-10,0,5,0,0,0,0,-10],[-20,-10,-10,-5,-5,-10,-10,-20]],
     k:[[-30,-40,-40,-50,-50,-40,-40,-30],[-30,-40,-40,-50,-50,-40,-40,-30],[-30,-40,-40,-50,-50,-40,-40,-30],[-30,-40,-40,-50,-50,-40,-40,-30],[-20,-30,-30,-40,-40,-30,-30,-20],[-10,-20,-20,-20,-20,-20,-20,-10],[20,20,0,0,0,0,20,20],[20,30,10,0,0,10,30,20]]
   };
+
   const VAL = { p:100, n:320, b:330, r:500, q:900, k:20000 };
 
   const state = {
-    board: [], turn: "w", selected: null, enPassant: null, lastMove: null,
-    moveHistory: [], positionHistory: [], whiteMs: START_TIME, blackMs: START_TIME,
-    started: false, gameOver: false, status: "Başlat tuşuna bas.", botThinking: false,
-    lastTick: performance.now(), clockTimer: null, botTimer: null
+    board: [],
+    turn: "w",
+    selected: null,
+    enPassant: null,
+    lastMove: null,
+    moveHistory: [],
+    snapshots: [],
+    whiteMs: START_TIME,
+    blackMs: START_TIME,
+    started: false,
+    gameOver: false,
+    botThinking: false,
+    lastTick: performance.now(),
+    clockTimer: null,
+    botTimer: null,
+    pendingPromotion: null,
+    soundOn: true,
+    audioCtx: null,
+    status: "Başlat tuşuna bas."
   };
 
-  const P = (c,t,id) => ({ c,t,m:false,id });
-  function initialBoard(){ return [
-    [P("b","r","br1"),P("b","n","bn1"),P("b","b","bb1"),P("b","q","bq"),P("b","k","bk"),P("b","b","bb2"),P("b","n","bn2"),P("b","r","br2")],
-    [P("b","p","bp1"),P("b","p","bp2"),P("b","p","bp3"),P("b","p","bp4"),P("b","p","bp5"),P("b","p","bp6"),P("b","p","bp7"),P("b","p","bp8")],
-    [null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null],
-    [P("w","p","wp1"),P("w","p","wp2"),P("w","p","wp3"),P("w","p","wp4"),P("w","p","wp5"),P("w","p","wp6"),P("w","p","wp7"),P("w","p","wp8")],
-    [P("w","r","wr1"),P("w","n","wn1"),P("w","b","wb1"),P("w","q","wq"),P("w","k","wk"),P("w","b","wb2"),P("w","n","wn2"),P("w","r","wr2")]
-  ]; }
-  function cloneBoard(b){ return b.map(r => r.map(p => p ? {...p} : null)); }
-  function other(c){ return c === "w" ? "b" : "w"; }
-  function inBounds(r,c){ return r>=0 && r<8 && c>=0 && c<8; }
-  function sqName(r,c){ return FILES[c] + (8-r); }
-  function pieceAt(b,r,c){ return b[r][c]; }
-  function findKing(b,color){ for(let r=0;r<8;r++) for(let c=0;c<8;c++){ const p=b[r][c]; if(p && p.c===color && p.t==="k") return {r,c}; } return null; }
+  const P = (c,t,id) => ({ c, t, moved:false, id });
 
-  function isAttacked(b,r,c,by){
-    const pawnRow = by === "w" ? r+1 : r-1;
-    for(const dc of [-1,1]){ const rr=pawnRow, cc=c+dc; if(inBounds(rr,cc)){ const p=b[rr][cc]; if(p && p.c===by && p.t==="p") return true; } }
-    const knight = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
-    for(const [dr,dc] of knight){ const rr=r+dr, cc=c+dc; if(inBounds(rr,cc)){ const p=b[rr][cc]; if(p && p.c===by && p.t==="n") return true; } }
-    const dirs = [[1,0,["r","q"]],[-1,0,["r","q"]],[0,1,["r","q"]],[0,-1,["r","q"]],[1,1,["b","q"]],[1,-1,["b","q"]],[-1,1,["b","q"]],[-1,-1,["b","q"]]];
-    for(const [dr,dc,ok] of dirs){ let rr=r+dr, cc=c+dc; while(inBounds(rr,cc)){ const p=b[rr][cc]; if(p){ if(p.c===by && ok.includes(p.t)) return true; break; } rr += dr; cc += dc; } }
-    for(let dr=-1; dr<=1; dr++) for(let dc=-1; dc<=1; dc++){ if(!dr && !dc) continue; const rr=r+dr, cc=c+dc; if(inBounds(rr,cc)){ const p=b[rr][cc]; if(p && p.c===by && p.t==="k") return true; } }
+  function initialBoard() {
+    return [
+      [P("b","r","br1"),P("b","n","bn1"),P("b","b","bb1"),P("b","q","bq"),P("b","k","bk"),P("b","b","bb2"),P("b","n","bn2"),P("b","r","br2")],
+      [P("b","p","bp1"),P("b","p","bp2"),P("b","p","bp3"),P("b","p","bp4"),P("b","p","bp5"),P("b","p","bp6"),P("b","p","bp7"),P("b","p","bp8")],
+      [null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null],
+      [null,null,null,null,null,null,null,null],
+      [P("w","p","wp1"),P("w","p","wp2"),P("w","p","wp3"),P("w","p","wp4"),P("w","p","wp5"),P("w","p","wp6"),P("w","p","wp7"),P("w","p","wp8")],
+      [P("w","r","wr1"),P("w","n","wn1"),P("w","b","wb1"),P("w","q","wq"),P("w","k","wk"),P("w","b","wb2"),P("w","n","wn2"),P("w","r","wr2")]
+    ];
+  }
+
+  function cloneBoard(board) {
+    return board.map(row => row.map(p => p ? { ...p } : null));
+  }
+
+  function other(color) { return color === "w" ? "b" : "w"; }
+  function inBounds(r,c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
+  function squareName(r,c) { return `${FILES[c]}${8-r}`; }
+
+  function ensureAudio() {
+    if (!state.audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) state.audioCtx = new AC();
+    }
+    if (state.audioCtx && state.audioCtx.state === "suspended") {
+      state.audioCtx.resume().catch(() => {});
+    }
+  }
+
+  function beep(freq = 440, dur = 0.08, type = "sine", vol = 0.03) {
+    if (!state.soundOn) return;
+    ensureAudio();
+    const ac = state.audioCtx;
+    if (!ac) return;
+    const t = ac.currentTime;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.value = vol;
+    o.connect(g);
+    g.connect(ac.destination);
+    o.start(t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.stop(t + dur + 0.03);
+  }
+
+  function findKing(board, color) {
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const p = board[r][c];
+        if (p && p.c === color && p.t === "k") return { r, c };
+      }
+    }
+    return null;
+  }
+
+  function isSquareAttacked(board, r, c, byColor) {
+    const pawnRow = byColor === "w" ? r + 1 : r - 1;
+    for (const dc of [-1,1]) {
+      const rr = pawnRow, cc = c + dc;
+      if (inBounds(rr,cc)) {
+        const p = board[rr][cc];
+        if (p && p.c === byColor && p.t === "p") return true;
+      }
+    }
+
+    const knightMoves = [
+      [-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]
+    ];
+    for (const [dr,dc] of knightMoves) {
+      const rr = r + dr, cc = c + dc;
+      if (inBounds(rr,cc)) {
+        const p = board[rr][cc];
+        if (p && p.c === byColor && p.t === "n") return true;
+      }
+    }
+
+    const lines = [
+      [1,0,["r","q"]],[-1,0,["r","q"]],[0,1,["r","q"]],[0,-1,["r","q"]],
+      [1,1,["b","q"]],[1,-1,["b","q"]],[-1,1,["b","q"]],[-1,-1,["b","q"]]
+    ];
+    for (const [dr,dc,allowed] of lines) {
+      let rr = r + dr, cc = c + dc;
+      while (inBounds(rr,cc)) {
+        const p = board[rr][cc];
+        if (p) {
+          if (p.c === byColor && allowed.includes(p.t)) return true;
+          break;
+        }
+        rr += dr; cc += dc;
+      }
+    }
+
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        if (dr === 0 && dc === 0) continue;
+        const rr = r + dr, cc = c + dc;
+        if (!inBounds(rr,cc)) continue;
+        const p = board[rr][cc];
+        if (p && p.c === byColor && p.t === "k") return true;
+      }
+    }
     return false;
   }
 
-  function pseudoMoves(b,color,enPassant){
-    const moves = []; const forward = color === "w" ? -1 : 1; const startRow = color === "w" ? 6 : 1; const promoRow = color === "w" ? 0 : 7;
-    for(let r=0;r<8;r++) for(let c=0;c<8;c++){
-      const p = b[r][c]; if(!p || p.c !== color) continue;
-      const add = (toR,toC,extra={}) => { if(!inBounds(toR,toC)) return; const target = b[toR][toC]; if(target && target.c===color) return; moves.push({from:{r,c},to:{r:toR,c:toC},piece:{...p},capture:target||null,...extra}); };
-      if(p.t === "p"){
-        const one = r + forward; if(inBounds(one,c) && !b[one][c]){ add(one,c, one === promoRow ? {promotion:"q"} : {}); const two = r + forward*2; if(r === startRow && !b[two][c]) add(two,c,{doubleStep:true}); }
-        for(const dc of [-1,1]){ const rr = r + forward, cc = c + dc; if(!inBounds(rr,cc)) continue; const target = b[rr][cc]; if(target && target.c !== color) add(rr,cc, rr === promoRow ? {promotion:"q"} : {}); if(enPassant && enPassant.r === rr && enPassant.c === cc) add(rr,cc,{enPassant:true}); }
-      } else if(p.t === "n"){
-        const jumps = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]; for(const [dr,dc] of jumps) add(r+dr,c+dc);
-      } else if(p.t === "b" || p.t === "r" || p.t === "q"){
-        const dirs = []; if(p.t === "b" || p.t === "q") dirs.push([1,1],[1,-1],[-1,1],[-1,-1]); if(p.t === "r" || p.t === "q") dirs.push([1,0],[-1,0],[0,1],[0,-1]);
-        for(const [dr,dc] of dirs){ let rr=r+dr, cc=c+dc; while(inBounds(rr,cc)){ const target = b[rr][cc]; if(!target) add(rr,cc); else { if(target.c !== color) add(rr,cc); break; } rr += dr; cc += dc; } }
-      } else if(p.t === "k"){
-        for(let dr=-1; dr<=1; dr++) for(let dc=-1; dc<=1; dc++){ if(!dr && !dc) continue; add(r+dr,c+dc); }
-        if(!p.m && !isAttacked(b,r,c,other(color))){
-          const rookK = b[r][7]; if(rookK && rookK.c===color && rookK.t==="r" && !rookK.m && !b[r][5] && !b[r][6]) if(!isAttacked(b,r,5,other(color)) && !isAttacked(b,r,6,other(color))) moves.push({from:{r,c},to:{r,c:6},piece:{...p},castle:"k"});
-          const rookQ = b[r][0]; if(rookQ && rookQ.c===color && rookQ.t==="r" && !rookQ.m && !b[r][1] && !b[r][2] && !b[r][3]) if(!isAttacked(b,r,3,other(color)) && !isAttacked(b,r,2,other(color))) moves.push({from:{r,c},to:{r,c:2},piece:{...p},castle:"q"});
-        }
-      }
-    }
-    return moves;
-  }
+  function generatePseudoMoves(board, color, enPassant) {
+    const moves = [];
+    const forward = color === "w" ? -1 : 1;
+    const startRow = color === "w" ? 6 : 1;
+    const promoRow = color === "w" ? 0 : 7;
 
-  function applyMove(b,move){
-    const next = cloneBoard(b); const p = next[move.from.r][move.from.c]; const moving = {...p,m:true}; next[move.from.r][move.from.c] = null;
-    if(move.enPassant){ const capRow = p.c === "w" ? move.to.r + 1 : move.to.r - 1; next[capRow][move.to.c] = null; }
-    if(move.castle){ if(move.castle === "k"){ const rook = next[move.from.r][7]; next[move.from.r][7] = null; if(rook) next[move.from.r][5] = {...rook,m:true}; } else { const rook = next[move.from.r][0]; next[move.from.r][0] = null; if(rook) next[move.from.r][3] = {...rook,m:true}; } }
-    if(move.promotion) moving.t = move.promotion; next[move.to.r][move.to.c] = moving;
-    let nextEP = null; if(p.t === "p" && move.doubleStep) nextEP = {r:(move.from.r + move.to.r)/2, c:move.from.c};
-    return {board:next, enPassant:nextEP};
-  }
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const p = board[r][c];
+        if (!p || p.c !== color) continue;
 
-  function legalMoves(b,color,enPassant){ const pseudo = pseudoMoves(b,color,enPassant); const good=[]; for(const m of pseudo){ const next = applyMove(b,m,enPassant); const king = findKing(next.board,color); if(!king) continue; if(!isAttacked(next.board,king.r,king.c,other(color))) good.push({...m, resultEP: next.enPassant}); } return good; }
-  function evalBoard(b){ let score=0; for(let r=0;r<8;r++) for(let c=0;c<8;c++){ const p=b[r][c]; if(!p) continue; const base = VAL[p.t]; const pst = PST[p.t][p.c === "w" ? r : 7-r][c]; score += p.c === "w" ? (base + pst) : -(base + pst); } return score; }
-  function moveScore(m){ let s=0; if(m.capture) s += VAL[m.capture.t] + 50; if(m.promotion) s += 800; if(m.castle) s += 25; s += 7 - (Math.abs(m.to.r - m.from.r) + Math.abs(m.to.c - m.from.c)); return s; }
-  function orderMoves(moves){ return [...moves].sort((a,b)=>moveScore(b)-moveScore(a)); }
-  function terminal(b,color,enPassant){ const ms = legalMoves(b,color,enPassant); if(ms.length) return null; const king = findKing(b,color); if(!king) return color === "w" ? -999999 : 999999; const check = king ? isAttacked(b,king.r,king.c,other(color)) : false; if(check) return color === "w" ? -999999 : 999999; return 0; }
+        const push = (toR, toC, extra = {}) => {
+          if (!inBounds(toR,toC)) return;
+          const target = board[toR][toC];
+          if (target && target.c === color) return;
+          moves.push({
+            from: { r, c },
+            to: { r: toR, c: toC },
+            piece: { ...p },
+            capture: target || null,
+            ...extra
+          });
+        };
 
-  function search(b,color,enPassant,depth,alpha,beta,maximizing,startTime,timeLimit){
-    if(Date.now() - startTime > timeLimit) throw new Error("TIME");
-    const t = terminal(b,color,enPassant); if(t !== null) return t; if(depth === 0) return evalBoard(b);
-    const moves = orderMoves(legalMoves(b,color,enPassant)); if(!moves.length) return evalBoard(b);
-    if(maximizing){ let best=-Infinity; for(const m of moves){ const next = applyMove(b,m,enPassant); const score = search(next.board,other(color),next.enPassant,depth-1,alpha,beta,false,startTime,timeLimit); if(score > best) best=score; if(best > alpha) alpha = best; if(beta <= alpha) break; } return best; }
-    let best=Infinity; for(const m of moves){ const next = applyMove(b,m,enPassant); const score = search(next.board,other(color),next.enPassant,depth-1,alpha,beta,true,startTime,timeLimit); if(score < best) best=score; if(best < beta) beta = best; if(beta <= alpha) break; } return best;
-  }
-
-  function chooseBotMove(){
-    const start = Date.now(); const moves = orderMoves(legalMoves(state.board,"b",state.enPassant)); if(!moves.length) return null;
-    let bestMove = moves[0];
-    for(let depth=1; depth<=BOT_MAX_DEPTH; depth++){
-      if(Date.now() - start > BOT_TIME_LIMIT_MS) break;
-      let localBest = null; let localBestScore = -Infinity;
-      try{
-        for(const m of moves){ if(Date.now() - start > BOT_TIME_LIMIT_MS) throw new Error("TIME"); const next = applyMove(state.board,m,state.enPassant); const score = search(next.board,"w",next.enPassant,depth-1,-Infinity,Infinity,false,start,BOT_TIME_LIMIT_MS); if(score > localBestScore){ localBestScore = score; localBest = m; } }
-        if(localBest) bestMove = localBest;
-      } catch(e){ break; }
-    }
-    const top = moves.slice(0, Math.min(4, moves.length)); if(top.length > 1 && Math.random() < 0.12) return top[Math.floor(Math.random() * top.length)];
-    return bestMove;
-  }
-
-  function notation(m){ if(!m) return ""; if(m.castle) return m.castle === "k" ? "O-O" : "O-O-O"; const from = sqName(m.from.r,m.from.c); const to = sqName(m.to.r,m.to.c); const promo = m.promotion ? "=" + m.promotion.toUpperCase() : ""; return from + "-" + to + promo; }
-  function fmt(ms){ ms = Math.max(0,ms); const total = Math.ceil(ms/1000); const m = Math.floor(total/60); const s = total%60; return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0"); }
-  function updateClocks(){ WTIME.textContent = fmt(state.whiteMs); BTIME.textContent = fmt(state.blackMs); WCLOCK.classList.toggle("active", state.started && !state.gameOver && state.turn === "w"); BCLOCK.classList.toggle("active", state.started && !state.gameOver && state.turn === "b"); }
-  function setStatus(text){ state.status = text; STATUS.textContent = text; }
-  function addMove(text){ state.moveHistory.unshift(text); if(state.moveHistory.length > 12) state.moveHistory.pop(); renderMoves(); }
-  function renderMoves(){ MOVES.innerHTML = state.moveHistory.length ? state.moveHistory.map((t,i)=>`<div class="moveRow"><div class="idx">${state.moveHistory.length - i}.</div><div class="txt">${t}</div></div>`).join("") : `<div class="help">Henüz hamle yok.</div>`; }
-
-  function render(){
-    updateClocks(); renderMoves();
-    const legalForTurn = state.selected ? legalMoves(state.board
+        if (p.t === "p") {
+          const one = r + forward;
+          if (inBounds(one,c) && !board[one][c]) {
+            push(one, c, one === promoRow ? { promotion: "q" } : {});
+            const two = r + forward * 2;
+            if (r === startRow && !board[two][c]) push(two, c, { doubleStep: true });
+          }
+          for (const dc of [-1,1]) {
+            const rr = r + forward, cc = c + dc;
+            if (!inBounds(rr,cc)) continue;
+            const target = board[rr][cc];
+            if (target && target.c !== color) {
+              push(rr, cc, rr === promoRow ? { promotion: "q" } : {});
+            }
+            if (enPassant && enPassant.r === rr && enPassant.c === cc) {
+              push(rr, cc, { enPassant: true });
+            }
+          }
+        } else if (p.t === "n") {
+          const jumps = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
+          for (const [dr,dc] of jumps) push(r + dr, c + dc);
+        } else if (p.t === "b" || p.t === "r" || p.t === "q") {
+          const dirs = [];
+          if (p.t === "b" || p.t === "q") dirs.push([1,1],[1,-1],[-1,1],[-1,-1]);
+          if (p.t === "r" || p.t === "q") dirs.push([1,0],[-1,0],[0,1],[0,-1]);
+          for (const [dr,dc] of dirs) {
+            let rr = r + dr, cc = c + dc;
+            while (inBounds(rr,cc
