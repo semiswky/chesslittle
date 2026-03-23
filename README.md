@@ -13,4 +13,4 @@
 
 ## Lisans
 
-MIT License © 2026 Semih Yagami
+MIT License © 2026 Semiswky
