@@ -15,4 +15,4 @@ React tabanlı dokunmatik uyumlu satranç oyunu: İnsan vs Bot, rok/terfi/en pas
 3. Oyunu sıfırlamak için “Yeni oyun” tuşunu kullanın.
 
 ## Lisans
-MIT License
+MIT License Semiswky
